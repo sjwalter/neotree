@@ -18,42 +18,96 @@
       integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
   </script>
 
+  <!-- Tracking.js -->
+  <script src="/resources/third_party/tracking.js/tracking.js">
+  </script>
+
   <!-- Three.js. -->
   <script src="/resources/third_party/three.js/three.js">
-  </script>
-
-  <!-- Neotree. -->
-  <!-- <script src="/resources/neotree/tree-configurator.js">
-  </script> -->
-
-  <script src="/resources/neotree/neotree-app.js">
-  </script>
-
-  <!-- WebNeopixel. -->
-  <script src="/resources/web-neopixel/web-neopixel.js">
   </script>
 
   <!-- JSColor -->
   <script src="/resources/third_party/jscolor/jscolor.min.js">
   </script>
 
-  <script>
-/*    jQuery(function() {
-      var colorElem = document.getElementById('tree-color');
-      var neo = new WebNeopixel();
-      var index = 400;
-      colorElem.jscolor.onFineChange = function() {
-	neo.setPixels([255, 0], parseInt(colorElem.jscolor.toString(), 16));
-      };
-    });*/
+  <!-- WebNeopixel. -->
+  <script src="/resources/web-neopixel/web-neopixel.js">
+  </script>
+
+  <!-- Neotree. -->
+  <script src="/resources/neotree/neotree-app.js">
   </script>
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    #tree-configuration-video,
+    #tree-configuration-canvas {
+      margin-left: 15px;
+      margin-top: 15px;
+      position: absolute;
+    }
+  </style>
 </head>
 <body>
-  <h1>
-    NeoTree
-  </h1>
+  <div id="header">
+    <h1>
+      NeoTree
+    </h1>
+    <input class="jscolor" id="tree-color">
+  </div>
 
+  <div id="tree-bespoke-effects-screen"
+       class="app-screen always-on">
+    <h2>Pre-configured effects</h2>
+    <div class="row-fluid">
+      <h2>Effects</h2>
+      <div class="span12">
+	<div button="twinkling-effect-container">
+	  <button id="twinkling-effect-button"
+	          class="effect-button btn" 
+	          data-effect-name="twinkle">
+	    Twinkle
+	  </button>
+	  <label for="twinkling-effect-animation-delay">Frame delay (ms)</label>
+	  <input id="twinkling-effect-animation-delay" data-member="frameDelayMs" value="100">
+	</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tree-configuration-screen"
+       class="app-screen"
+       style="display: none;">
+    <div class="row-fluid">
+      <div class="span4">
+	<h2>AutoTree</h2>
+	Use your webcam to figure out the layout of the strip on your tree.
+	<button id="tree-configuration-start-button"
+	        class="btn btn-primary">
+	  Start autotree!
+	</button>
+      </div>
+      <div class="span8">
+	<h4 id="tree-configuration-status"></h4>
+	<div>
+	  <div>
+	    <video id="tree-configuration-video"
+	           width="600" height="450" 
+	           preload autoplay loop muted controls>
+	    </video>
+	    <canvas id="tree-configuration-canvas"
+		    width="600" height="450">
+	    </canvas>
+	  </div>
+	</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    jQuery(function() {
+      NeotreeApp.getThisPartyStarted();
+    });
+  </script>
 </body>
 </html>
