@@ -81,6 +81,18 @@ function TreeConfigurationScreen(neopixel) {
   this.statusElem_ = jQuery('#tree-configuration-status');
 
   /** @private */
+  this.minDimensionElem_ = jQuery('#tree-configuration-min-dimension');
+
+  /** @private */
+  this.minGroupSizeElem_ = jQuery('#tree-configuration-min-group-size');
+
+  /** @private */
+  this.maxDimensionElem_ = jQuery('#tree-configuration-max-dimension');
+
+  /** @private */
+  this.lightThresholdElem_ = jQuery('#tree-configuration-light-threshold');
+
+  /** @private */
   this.videoElem_ = document.getElementById('tree-configuration-video');
 
   /** @private */
@@ -94,8 +106,13 @@ function TreeConfigurationScreen(neopixel) {
     this.startConfiguration_();
   });
 
+  jQuery('#tree-configuration-screen input').change(() => {
+    this.updateTrackerParameters_();
+  });
+
   // Register custom tracking colors.
   this.registerTrackingColors_();
+  this.startConfiguration_();
 }
 
 
@@ -132,10 +149,49 @@ TreeConfigurationScreen.prototype.registerTrackingColors_ = function() {
   tracking.ColorTracker.registerColor('white', function(r, g, b) {
     return r >= g >= b >= 215;
   });
-  tracking.ColorTracker.registerColor('light', function(r, g, b) {
-    return 0.2126 * r + 0.7152 * g + 0.0722 * b > 100;
+  var lightThreshold = parseInt(this.lightThresholdElem_.val(), 10);
+  tracking.ColorTracker.registerColor('light', (r, g, b) => {
+    return (0.2126 * r + 0.7152 * g + 0.0722 * b) > lightThreshold;
   });
 };
+  
+  
+TreeConfigurationScreen.prototype.updateTrackerParameters_ = function() {
+  this.outlineTracker_.setMinDimension(
+      parseInt(this.minDimensionElem_.val(), 10));
+  this.outlineTracker_.setMinGroupSize(
+      parseInt(this.minGroupSizeElem_.val(), 10));
+  this.outlineTracker_.setMaxDimension(
+      parseInt(this.maxDimensionElem_.val(), 10));
+  var lightThreshold = parseInt(this.lightThresholdElem_.val(), 10);
+  tracking.ColorTracker.registerColor('light', (r, g, b) => {
+    return (0.2126 * r + 0.7152 * g + 0.0722 * b) > lightThreshold;
+  });
+  tracking.track(
+      '#tree-configuration-video', this.outlineTracker_, {camera: false});
+};
+
+
+/**
+ * Divide the tree into thirds.
+ */
+TreeConfigurationScreen.prototype.setThirdsPattern_ = function() {
+  var pixelData = [];
+  var numLeds = this.neopixel_.getNumLeds();
+  for(var i = 0; i < numLeds; i++) {
+    if (i % 2 == 0) {
+      pixelData.push(0);
+    } else if (i > 2 * numLeds / 3) {
+      pixelData.push(9382148);
+    } else if (i > numLeds / 3) {
+      pixelData.push(255);
+    } else {
+      pixelData.push(4850699);
+    }
+  }
+  this.neopixel_.setLeds(pixelData);
+};
+
 
 /**
  * Try to find the outline of the tree.
@@ -143,27 +199,16 @@ TreeConfigurationScreen.prototype.registerTrackingColors_ = function() {
 TreeConfigurationScreen.prototype.findTreeOutline_ = function() {
   this.statusElem_.text('Finding tree outline.');
   this.outlineTracker_ = new tracking.ColorTracker(['light']);
-  this.outlineTracker_.setMinDimension(5);
-  this.outlineTracker_.setMinGroupSize(5);
-  this.outlineTracker_.setMaxDimension(25);
+  this.updateTrackerParameters_();
   tracking.track(
       '#tree-configuration-video', this.outlineTracker_, {camera: true});
-  this.neopixel_.fill(16711680);
+  this.setThirdsPattern_();
   this.outlineTracker_.on('track', (event) => {
     this.canvasContext_.clearRect(
-	0, 0, this.canvasElem_.width, this.canvasElem_.height);
+    	0, 0, this.canvasElem_.width, this.canvasElem_.height);
     event.data.forEach((rect) => {
-      if (rect.color == 'custom') {
-	rect.color = 'red';
-      }
-
-      this.canvasContext_.strokeStyle = rect.color;
+      this.canvasContext_.strokeStyle = '#ff0000';
       this.canvasContext_.strokeRect(rect.x, rect.y, rect.width, rect.height);
-      this.canvasContext_.font = '6px Helvetica';
-      this.canvasContext_.fillStyle = '#fff';
-      this.canvasContext_.fillText('x: ' + rect.x + 'px', rect.x + rect.width + 5, rect.y + 11);
-      this.canvasContext_.fillText('y: ' + rect.y + 'px', rect.x + rect.width + 5, rect.y + 22);
-
     });
   });
 };
@@ -195,17 +240,28 @@ function TwinklingEffect(neopixels) {
     '040404',
     '121212',
     '202020',
+    '292929',
     '323232',
     '525252',
     '747474',
+    '828282',
     '969696',
+    'a6a6a6',
     'b0b0b0',
     'c2c2c2',
+    'd4d4d4',
     'e4e4e4',
-    'f6f6f6'
+    'f6f6f6',
+    'f6f6f6',
+    'f7f7f7',
+    'f8f8f8',
+    'f9f9f9',
+    'f0f0f0',
+    'f2f2f2',
+    'fffff',
   ];
 
-  var ANIMATION_DELAY = 100;
+  var ANIMATION_DELAY = 75;
   var numLeds = this.neopixels_.getNumLeds();
   var pixels = [];
   function choosePixels() {
@@ -225,7 +281,7 @@ function TwinklingEffect(neopixels) {
       pixelData.push(index);
       pixelData.push(whiteValue);
     });
-    neopixels.setLeds(pixelData, 1447446);
+    neopixels.setLedsIndexed(pixelData, 1447446);
     var restart = false;
     if (up == true) {
       if (currentWhiteIndex == WHITE_VALUES.length - 1) {

@@ -57,7 +57,7 @@
   </div>
 
   <div id="tree-bespoke-effects-screen"
-       class="app-screen always-on">
+       class="app-screen" style="display: none;">
     <h2>Pre-configured effects</h2>
     <div class="row-fluid">
       <h2>Effects</h2>
@@ -89,14 +89,33 @@
       </div>
       <div class="span8">
 	<h4 id="tree-configuration-status"></h4>
+	<div class="tree-configuration-parameters">
+	  <div class="col-xs-4">
+	    min dimension
+	    <input type="text" id="tree-configuration-min-dimension" value="1">
+	  </div>
+	  <div class="col-xs-4">
+	    min group size
+	    <input type="text" id="tree-configuration-min-group-size" value="1">
+	  </div>
+	  <div class="col-xs-4">
+	    max dimension
+	    <input type="text" id="tree-configuration-max-dimension" value="25">
+	  </div>
+	  <div class="col-xs-4">
+	    light threshold
+	    <input type="text" id="tree-configuration-light-threshold" value="235">
+	  </div>
+	</div>
 	<div>
 	  <div>
 	    <video id="tree-configuration-video"
-	           width="600" height="450" 
+	           width="100%" 
 	           preload autoplay loop muted controls>
 	    </video>
+	    <!--<img id="tree-configuration-video" width="600" height="450" src="/resources/images/tree-bright-white.png">-->
 	    <canvas id="tree-configuration-canvas"
-		    width="600" height="450">
+		    width="100%">
 	    </canvas>
 	  </div>
 	</div>
