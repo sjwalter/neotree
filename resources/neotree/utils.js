@@ -150,3 +150,15 @@ neotree.utils.rectsAreSimilar = function (rectA, rectB, opt_distanceThreshold) {
 	  {x: rectB.x + rectB.width, y: rectB.y + rectB.height}
 	) <= opt_distanceThreshold;
 };
+
+
+/**
+ * Returns whether a rectangle is contained by another.
+ */
+neotree.utils.rectContainsRect =
+    function(possiblyContainer, possiblyContained) {
+  var a = possiblyContainer;
+  var b = possiblyContained;
+  return a.x < b.x && a.x + a.width > b.x + b.width &&
+      a.y < b.y && a.y + a.height > b.y + b.height;
+};
