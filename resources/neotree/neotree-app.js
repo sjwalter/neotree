@@ -29,7 +29,7 @@ neotree.NeotreeApp.prototype.initialize = function(cb) {
     this.allAppScreensElem_ = jQuery('.app-screen');
     this.treeColorElem_ = document.getElementById('tree-color');
     this.treeColorElem_.addEventListener('change', () => {
-      this.neopixels_.fill(this.treeColorElem_.jscolor.toString());
+      this.neopixels_.fill(this.treeColorElem_.color.toString());
     });
     this.treeConfigurationScreen_ =
 	new neotree.TreeConfigurationScreen(this.neopixels_);

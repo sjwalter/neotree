@@ -33,63 +33,72 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     #tree-configuration-video,
-    #tree-configuration-canvas {
+    #tree-configuration-canvas,
+    #led-finder-canvas {
       margin-left: 15px;
       margin-top: 15px;
       position: absolute;
     }
   </style>
 </head>
-<body>
-  <div id="header">
-    <h1>
+<body class="container">
+  <div class="row">
+    <div class="col-xs-6">
       NeoTree
-    </h1>
-    <input class="jscolor" id="tree-color">
+    </div>
+    <div class="col-xs-6">
+      <label for="tree-color">Fill the tree with color!
+      <input class="color" id="tree-color">
+    </div>
   </div>
 
   <div id="tree-configuration-screen"
        class="app-screen"
        style="display: none;">
-    <div class="row-fluid">
-      <div class="col-xs-6">
-	<h2>AutoTree</h2>
+    <div class="row">
+      <div class="col-xs-12">
 	Use your webcam to figure out the layout of the strip on your tree.
 	<button id="tree-configuration-start-button"
 	        class="btn btn-primary">
 	  Start autotree!
 	</button>
       </div>
-      <h4 id="tree-configuration-status"></h4>
-      <div class="tree-configuration-parameters">
-	<div class="col-xs-4">
-	  min dimension
-	  <input type="text" id="tree-configuration-min-dimension" value="1">
-	</div>
-	<div class="col-xs-4">
-	  min group size
-	  <input type="text" id="tree-configuration-min-group-size" value="1">
-	</div>
-	<div class="col-xs-4">
-	  max dimension
-	  <input type="text" id="tree-configuration-max-dimension" value="25">
-	</div>
-	<div class="col-xs-4">
-	  light threshold
-	  <input type="text" id="tree-configuration-light-threshold" value="235">
-	</div>
+    </div>
+    <div class="row tree-configuration-parameters">
+      <div class="col-xs-6">
+	min dimension
+	<input type="text" id="tree-configuration-min-dimension" value="1">
       </div>
-      <div class="row-fluid">
-	<div class="col-xs-8">
-	  <video id="tree-configuration-video"
-		  width="640" height="480" 
-		  preload autoplay loop muted controls>
-	  </video>
-	  <!--<img id="tree-configuration-video" width="600" height="450" src="/resources/images/tree-bright-white.png">-->
-	  <canvas id="tree-configuration-canvas"
-		  width="640" height="480">
-	  </canvas>
-	</div>
+      <div class="col-xs-6">
+	min group size
+	<input type="text" id="tree-configuration-min-group-size" value="1">
+      </div>
+      <div class="col-xs-6">
+	max dimension
+	<input type="text" id="tree-configuration-max-dimension" value="250">
+      </div>
+      <div class="col-xs-6">
+	light threshold
+	<input type="text" id="tree-configuration-light-threshold" value="250">
+      </div>
+    </div>
+    <div class="row">
+      <div id="tree-configuration-status" class="col-xs-12"></div>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-8">
+	<video id="tree-configuration-video"
+		width="640" height="480" 
+		preload autoplay loop muted controls>
+	</video>
+	<!--<img id="tree-configuration-video" width="600" height="450" src="/resources/images/tree-bright-white.png">-->
+	<canvas id="tree-configuration-canvas"
+		width="640" height="480">
+	</canvas>
+	<canvas id="led-finder-canvas"
+		width="640" height="480">
+	</canvas>
       </div>
     </div>
   </div>
