@@ -110,6 +110,26 @@ function TreeConfigurationScreen(neopixel) {
     this.updateTrackerParameters_();
   });
 
+  /**
+   * Set of rectangles from current detection mode.
+   */
+  this.currentTrackerRects_ = [];
+
+  /**
+   * Current phase.
+   */
+  this.detectionPhase = 'FIND_OUTLINE';
+
+  /**
+   * Timestamp of last track event.
+   */
+  this.lastTrackEventTimestamp_ = 0;
+
+  /**
+   * When the current phase started
+   */
+  this.phaseStartTimestamp_ = 0;
+
   // Register custom tracking colors.
   this.registerTrackingColors_();
   this.startConfiguration_();
@@ -137,25 +157,13 @@ TreeConfigurationScreen.prototype.startConfiguration_ = function() {
  * @private
  */
 TreeConfigurationScreen.prototype.registerTrackingColors_ = function() {
-  tracking.ColorTracker.registerColor('red', function(r, g, b) {
-    return r > 200 && b < 50 && g < 50;
-  });
-  tracking.ColorTracker.registerColor('green', function(r, g, b) {
-    return g > 200 && r < 50 && b < 50;
-  });
-  tracking.ColorTracker.registerColor('blue', function(r, g, b) {
-    return b > 200 && r < 50 && g < 50;
-  });
-  tracking.ColorTracker.registerColor('white', function(r, g, b) {
-    return r >= g >= b >= 215;
-  });
   var lightThreshold = parseInt(this.lightThresholdElem_.val(), 10);
   tracking.ColorTracker.registerColor('light', (r, g, b) => {
     return (0.2126 * r + 0.7152 * g + 0.0722 * b) > lightThreshold;
   });
 };
   
-  
+
 TreeConfigurationScreen.prototype.updateTrackerParameters_ = function() {
   this.outlineTracker_.setMinDimension(
       parseInt(this.minDimensionElem_.val(), 10));
@@ -167,7 +175,7 @@ TreeConfigurationScreen.prototype.updateTrackerParameters_ = function() {
   tracking.ColorTracker.registerColor('light', (r, g, b) => {
     return (0.2126 * r + 0.7152 * g + 0.0722 * b) > lightThreshold;
   });
-  tracking.track(
+  this.outlineTrackerTask_ = tracking.track(
       '#tree-configuration-video', this.outlineTracker_, {camera: false});
 };
 
@@ -203,14 +211,58 @@ TreeConfigurationScreen.prototype.findTreeOutline_ = function() {
   tracking.track(
       '#tree-configuration-video', this.outlineTracker_, {camera: true});
   this.setThirdsPattern_();
-  this.outlineTracker_.on('track', (event) => {
-    this.canvasContext_.clearRect(
-    	0, 0, this.canvasElem_.width, this.canvasElem_.height);
-    event.data.forEach((rect) => {
-      this.canvasContext_.strokeStyle = '#ff0000';
-      this.canvasContext_.strokeRect(rect.x, rect.y, rect.width, rect.height);
-    });
+  this.phaseStartTimestamp_ = Date.now();
+  this.outlineTracker_.on('track', this.handleOutlineTrackerEvent_.bind(this));
+};
+
+
+/**
+ * Handle a track event.
+ * @param {Event} evt The track event.
+ */
+TreeConfigurationScreen.prototype.handleOutlineTrackerEvent_ = function(evt) {
+  var SECONDS_PER_DISPLAY = 10;
+  var SAMPLES_PER_DISPLAY = 100;
+  var MS_BETWEEN_SAMPLES = SECONDS_PER_DISPLAY * 1000 / SAMPLES_PER_DISPLAY;
+  var now = Date.now();
+  if (now - this.lastTrackEventTimestamp_ > MS_BETWEEN_SAMPLES) {
+    this.currentTrackerRects_ = this.currentTrackerRects_.concat(evt.data);
+  }
+  this.lastTrackEventTimestamp_ = now;
+  if (now - this.phaseStartTimestamp_ > SECONDS_PER_DISPLAY * 1000) {
+    this.outlineTrackerTask_.stop();
+    this.calculateOutline_(this.currentTrackerRects_);
+  }
+};
+
+
+/**
+ * Calculate the outline.
+ */
+TreeConfigurationScreen.prototype.calculateOutline_ = function(rects) {
+  var lowX = Infinity;
+  var lowY = Infinity;
+  var highX = 0;
+  var highY = 0;
+  rects.forEach(function(rect) {
+    if (rect.x < lowX) {
+      lowX = rect.x;
+    }
+    if (rect.y < lowY) {
+      lowY = rect.y;
+    }
+    if (rect.x + rect.width > highX) {
+      highX = rect.x + rect.width;
+    }
+    if (rect.y + rect.height > highY) {
+      highY = rect.y + rect.height;
+    }
   });
+  this.canvasContext_.beginPath();
+  this.canvasContext_.lineWidth = 2;
+  this.canvasContext_.strokeStyle = "green";
+  this.canvasContext_.rect(lowX, lowY, highX - lowX, highY - lowY);
+  this.canvasContext_.stroke();
 };
 
 
